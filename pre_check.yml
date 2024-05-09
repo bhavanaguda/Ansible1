@@ -3,50 +3,55 @@
   hosts: localhost
   gather_facts: no
   tasks:
-   - name: Check if Git is installed
-     command: "git --version"
-     register: git_installed
-     ignore_errors: yes
-   - name: Install Git (if not installed)
-     become: yes
-     package:
-       name: git
-       state: present
-     when: git_installed.rc != 0
-   - name: Check if GitLab is reachable
-     uri:
-       url: "https://github.com/bhavanaguda"
-       method: GET
-     register: gitlab_status
-     ignore_errors: yes
-   - name: Check if Maven is installed
-     command: "mvn --version"
-     register: maven_version
-     ignore_errors: yes
-   - name: Check if SonarQube is reachable
-     uri:
-       url: http://10.138.77.104:9000
-       method: GET
-     register: sonarqube_status
-     ignore_errors: yes
-   - name: Check if Docker Registry is reachable
-     uri:
-       url: "https://hub.docker.com/u/bhavanaguda"
-       method: GET
-     register: docker_registry_status
-     ignore_errors: yes
-   - name: Check if Kubernetes is reachable
-     uri:
-       url: ""
-       method: GET
-     register: kubernetes_status
-     ignore_errors: yes
-   - name: Display pre-checks status
-     debug:
-       msg: |
-         Git: Installed: {{ git_installed.rc == 0 }}
-         GitLab: {{ gitlab_status.status }}
-         Maven: {{ maven_version.rc == 0 }}
-         SonarQube: {{ sonarqube_status.status }}
-         Docker Registry: {{ docker_registry_status.status }}
-         Kubernetes: {{ kubernetes_status.status }}
+    - name: Check if Git is installed
+      command: git-version
+      register: git_installed
+      ignore_errors: yes
+    - name: Install Git (if not installed)
+      become: yes
+      package:
+        name: git
+        state: present
+      when: git_installed.rc != 0
+    - name: Check if Gitlab is reachable
+      uri:
+        url: https://github.com/bhavanaguda
+        method: GET
+      register: gitlab_status
+      ignore_errors: yes
+      when: git_installed.rc == 0
+    - name: Check if Maven is installed
+      command: mvn --version
+      register: maven_version
+      ignore_errors: yes
+    - name: Check if SonarQube is reachable
+      uri:
+        url: http://10.138.77.104:9000
+        method: GET
+      register: sonarqube_status
+      ignore_errors: yes
+    - name: Check if Docker Registry is reachable
+      uri:
+        url: https://hub.docker.com/u/bhavanaguda
+        method: GET
+      register: docker_registry_status
+      ignore_errors: yes
+    - name: Check if Kubernetes is reachable
+      uri:
+        url: https://kubernetes.example.com
+        method: GET
+      register: kubernetes_status
+      ignore_errors: yes
+    - name: Display pre-checks status
+      debug:
+        msg: |
+          Git: Installed: {{ git_installed.rc == 0 }}
+          {% if git_installed.rc == 0 %}
+          GitLab: {{ gitlab_status.status }}
+          {% endif %}
+          Maven: Installed: {{ maven_version.rc == 0 }}
+          {% if sonarqube_status.status is not defined %}
+          SonarQube: Reachable
+          {% endif %}
+          Docker Registry: {{ docker_registry_status.status }}
+          Kubernetes: {{ kubernetes_status.status }}
