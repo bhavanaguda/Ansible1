@@ -37,7 +37,7 @@
      ignore_errors: yes
    - name: Check if Kubernetes is reachable
      uri:
-       url: "http://your_kubernetes_api"
+       url: ""
        method: GET
      register: kubernetes_status
      ignore_errors: yes
