@@ -1,0 +1,15 @@
+- hosts: jenkins_server
+  tasks:
+   - name: Check if Git is installed
+     command: git --version
+     register: git_check
+     ignore_errors: true
+   - name: Display message if Git is not installed
+     debug:
+       msg: "Git is not installed on the Jenkins server."
+   - name: Your other tasks here
+     # Add your tasks to be executed if Git is installed
+     # For example:
+     debug:
+       msg: "Git is installed. Proceeding with other tasks."
+     when: git_check.rc == 0
